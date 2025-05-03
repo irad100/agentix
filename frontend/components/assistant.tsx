@@ -8,7 +8,7 @@ import { createThread, getThreadState, sendMessage } from "@/lib/chatApi";
 import { Thread } from "@/components/assistant-ui/thread";
 import { SearchToolUI } from "@/components/assistant-ui/SearchToolUI";
 
-export function MyAssistant() {
+export function Assistant() {
   const threadIdRef = useRef<string | undefined>(undefined);
   const runtime = useLangGraphRuntime({
     threadId: threadIdRef.current,
@@ -37,8 +37,10 @@ export function MyAssistant() {
 
   return (
     <AssistantRuntimeProvider runtime={runtime}>
-      <Thread />
-      <SearchToolUI />
+      <div className="h-dvh">
+        <Thread />
+        <SearchToolUI />
+      </div>
     </AssistantRuntimeProvider>
   );
 }

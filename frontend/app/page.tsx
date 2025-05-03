@@ -1,9 +1,5 @@
-import { MyAssistant } from "@/components/MyAssistant";
+import { Assistant } from "@/components/assistant";
 
 export default function Home() {
-  return (
-    <main className="h-dvh">
-      <MyAssistant />
-    </main>
-  );
+  return <Assistant />;
 }
