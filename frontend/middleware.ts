@@ -1,7 +1,17 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-export default clerkMiddleware({
-  authorizedParties: ["https://agentix-security.com", "http://localhost:3000"],
+// Match only the API route(s)
+const isApiRoute = createRouteMatcher(["/api(.*)"]);
+
+export default clerkMiddleware(async (auth, req) => {
+  const authObject = await auth();
+  // Protect the API route
+  if (isApiRoute(req)) {
+    // Require specific permission to access chat API
+    await auth.protect(() => {
+      return authObject.orgSlug === "irad";
+    });
+  }
 });
 
 export const config = {
