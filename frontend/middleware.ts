@@ -1,10 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Only protect API routes, not the main UI
-const isProtectedRoute = createRouteMatcher(["/api/(.*)", "/trpc/(.*)"]);
-
-export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) await auth.protect();
+export default clerkMiddleware({
+  authorizedParties: ["https://agentix-security.com", "http://localhost:3000"],
 });
 
 export const config = {
