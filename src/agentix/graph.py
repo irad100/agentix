@@ -10,10 +10,10 @@ from langchain_core.messages import AIMessage
 from langgraph.graph import StateGraph
 from langgraph.prebuilt import ToolNode
 
-from react_agent.configuration import Configuration
-from react_agent.state import InputState, State
-from react_agent.tools import TOOLS
-from react_agent.utils import load_chat_model
+from agentix.configuration import Configuration
+from agentix.state import InputState, State
+from agentix.tools import TOOLS
+from agentix.utils import load_chat_model
 
 # Define the function that calls the model
 
@@ -112,4 +112,4 @@ builder.add_conditional_edges(
 builder.add_edge("tools", "call_model")
 
 # Compile the builder into an executable graph
-graph = builder.compile(name="ReAct Agent")
+graph = builder.compile(name="agentix")
