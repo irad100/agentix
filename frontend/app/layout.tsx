@@ -22,6 +22,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Agentix Systems",
   description: "Agentix Systems - AI-powered solutions",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.svg",
+        sizes: "any",
+      },
+    ],
+  },
 };
 
 function AuthWrapper({ children }: { children: React.ReactNode }) {
