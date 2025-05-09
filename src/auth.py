@@ -1,102 +1,38 @@
-"""Auth module for Clerk JWT authentication."""
+"""This module contains the authentication logic for the application.
 
+It is used to authenticate the user and get the user's claims.
+"""
+
+import asyncio
+import logging
 import os
-from typing import Any, Optional, cast
 
 import httpx
-import jwt
+from clerk_backend_api import Clerk
+from clerk_backend_api.jwks_helpers import AuthenticateRequestOptions
 from langgraph_sdk import Auth
-
-CLERK_JWKS_URL = "https://clerk.agentix.systems/.well-known/jwks.json"
-_jwks_cache: Optional[dict[str, Any]] = None
-
-
-async def _get_jwks() -> dict[str, Any]:
-    global _jwks_cache
-    if _jwks_cache is None:
-        resp = httpx.get(CLERK_JWKS_URL)
-        resp.raise_for_status()
-        _jwks_cache = cast(dict[str, Any], resp.json())
-    return _jwks_cache
-
 
 auth = Auth()
 
+logger = logging.getLogger(__name__)
+
 
 @auth.authenticate
-async def authenticate(authorization: str | None) -> Auth.types.MinimalUserDict:
-    """Validate Clerk JWT from the Authorization header.
+async def authenticate(request: httpx.Request) -> Auth.types.MinimalUserDict:
+    """Authenticate the user and return the user's claims."""
+    sdk = Clerk(bearer_auth=os.getenv("CLERK_SECRET_KEY"))
+    request_state = await asyncio.to_thread(
+        sdk.authenticate_request,
+        request,
+        AuthenticateRequestOptions(),
+    )
 
-    Args:
-        authorization: The Authorization header value.
-
-    Returns:
-        A minimal user dict for LangGraph.
-    """
-    # check if middleware works
-    raise Auth.exceptions.HTTPException(status_code=401, detail="Test")
-    if not authorization:
+    if not request_state.is_signed_in or not request_state.payload:
         raise Auth.exceptions.HTTPException(
-            status_code=401, detail="Missing Authorization header"
-        )
-    try:
-        scheme, token = authorization.split()
-    except ValueError:
-        raise Auth.exceptions.HTTPException(
-            status_code=401, detail="Invalid Authorization header format"
-        )
-    if scheme.lower() != "bearer":
-        raise Auth.exceptions.HTTPException(
-            status_code=401, detail="Unsupported auth scheme"
+            status_code=401,
+            detail=f"Unauthorized: {request_state.reason}",
         )
 
-    jwks = await _get_jwks()
-    try:
-        # Audience should match Clerk's Frontend API audience or your API identifier
-        key = ""
-        unverified_header = jwt.get_unverified_header(token)
-        kid = unverified_header.get("kid")
-
-        if not kid:
-            raise Auth.exceptions.HTTPException(
-                status_code=401, detail="Token missing kid header"
-            )
-
-        key_found = False
-        for jwk in jwks.get("keys", []):
-            if jwk.get("kid") == kid:
-                key = jwt.PyJWK(jwk).key
-                key_found = True
-                break
-
-        if not key_found:
-            global _jwks_cache
-            _jwks_cache = None
-            refreshed_jwks = await _get_jwks()
-            for jwk in refreshed_jwks.get("keys", []):
-                if jwk.get("kid") == kid:
-                    key = jwt.PyJWK(jwk).key
-                    key_found = True
-                    break
-            if not key_found:
-                raise Auth.exceptions.HTTPException(
-                    status_code=401, detail="Public key not found in JWKS"
-                )
-
-        payload = jwt.decode(
-            token,
-            key,
-            algorithms=["RS256"],
-            audience=os.getenv(
-                "CLERK_PUBLISHABLE_KEY"
-            ),  # e.g. your Clerk API key or custom identifier
-        )
-    except jwt.PyJWTError as e:
-        raise Auth.exceptions.HTTPException(
-            status_code=401, detail=f"Invalid or expired token: {e}"
-        )
-
-    # Return the user identity to LangGraph
     return {
-        "identity": payload["sub"],  # Clerk user ID
+        "identity": request_state.payload.get("sub", ""),
     }

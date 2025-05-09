@@ -11,6 +11,7 @@ RUN PYTHONDONTWRITEBYTECODE=1 pip install --no-cache-dir -c /api/constraints.txt
 # -- End of local dependencies install --
 ENV LANGGRAPH_AUTH='{"path": "src/auth.py:auth"}'
 ENV LANGSERVE_GRAPHS='{"agent": "/deps/agentix/src/agentix/graph.py:graph"}'
+ENV NEXT_PUBLIC_LANGGRAPH_ASSISTANT_ID='agentix-assistant-fixed-id'
 
 
 

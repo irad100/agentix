@@ -3,6 +3,9 @@
   "graphs": {
     "agent": "./src/agentix/graph.py:graph"
   },
+  "assistants": {
+    "agentix-assistant-fixed-id": "agent"
+  },
   "env": ".env",
   "auth": {
     "path": "src/auth.py:auth"
