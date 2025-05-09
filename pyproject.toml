@@ -21,10 +21,11 @@ dependencies = [
 
 [tool.uv]
 dev-dependencies = [
-    "mypy>=1.11.1", 
+    "mypy>=1.11.1",
     "ruff>=0.6.1",
     "langgraph-cli[inmem]>=0.1.71",
     "pytest>=8.3.5",
+    "codespell>=2.4.1",
 ]
 
 [build-system]
