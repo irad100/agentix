@@ -7,7 +7,7 @@ import httpx
 import jwt
 from langgraph_sdk import Auth
 
-CLERK_JWKS_URL = "https://api.clerk.dev/jwks"
+CLERK_JWKS_URL = "https://clerk.agentix.systems/.well-known/jwks.json"
 _jwks_cache: Optional[dict[str, Any]] = None
 
 
@@ -33,6 +33,8 @@ async def authenticate(authorization: str | None) -> Auth.types.MinimalUserDict:
     Returns:
         A minimal user dict for LangGraph.
     """
+    # check if middleware works
+    raise Auth.exceptions.HTTPException(status_code=401, detail="Test")
     if not authorization:
         raise Auth.exceptions.HTTPException(
             status_code=401, detail="Missing Authorization header"
