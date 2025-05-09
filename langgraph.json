@@ -1,13 +1,10 @@
 {
   "dependencies": ["."],
   "graphs": {
-    "agent": "./src/agentix/graph.py:graph"
-  },
-  "assistants": {
-    "agentix-assistant-fixed-id": "agent"
+    "agent": "src/agentix/graph.py:graph"
   },
   "env": ".env",
   "auth": {
-    "path": "src/auth.py:auth"
+    "path": "src/agentix/auth.py:auth"
   }
 }
